@@ -1,0 +1,9 @@
+This folder contains three examples: a noisy Stuart-Landau oscillator, a noisy FitzHugh-Nagumo oscillator, and a noisy Morris-Lecar oscillator
+
+Each script uses the TimeSeries.m and Qfunction.m functions (found in the 'Dependencies' folder) to:
+  1. generate time-series data in original coordinates
+  2. approximate the Q-function using finite-differences
+  3. generate time-series data in Q-function coordinates
+  4. visualize the time-series and the Q-function
+
+The scripts may be modified to handle any 2D stochastic oscillator
