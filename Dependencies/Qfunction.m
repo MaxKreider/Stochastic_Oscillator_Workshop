@@ -51,7 +51,7 @@ function [X, Y, Q, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, 
 
 % check the number of input arguments.
 if nargin < 10
-    error('TimeSeries requires 10 input arguments: a, b, c, d, N, M, f_func, g_func, m_func, n_func');
+    error('Qfunction requires 10 input arguments: a, b, c, d, N, M, f_func, g_func, m_func, n_func');
 end
 
 %% create the backwards operator
