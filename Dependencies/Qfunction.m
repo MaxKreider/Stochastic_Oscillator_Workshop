@@ -3,7 +3,14 @@ function [X, Y, Q, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, 
 %
 %   [X, Y, Q, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, g_func, m_func, n_func)
 %   builds a rectangular grid on the domain [a,b] x [c,d] with N points in the x-
-%   direction and M points in the y-direction. The function then discretizes the backwards equation
+%   direction and M points in the y-direction. The function then
+%   discretizes the backwards equation for the stochastic differential
+%   equation
+%
+%   dX = m(X,Y) dt + sqrt(2*f(X,Y)) dWx(t)
+%   dY = n(X,Y) dt + sqrt(2*g(X,Y)) dWy(t)
+%
+%   with independent Wiener process increments dWx(t) and dWy(t):
 % 
 %   L_dagger[Q_xx] = (f_func)Q_xx + (g_func)Q_yy + (m_func)Q_x + (n_func)Q_y 
 % 
@@ -111,6 +118,7 @@ e3 = e;
 e2(N:N:end) = 0;
 e3(N+1:N:end) = 0;
 
+% discretized version of backward operator -- the part from the boundary:
 A_out = spdiags([coeff_D.*e, coeff_C.*e2, coeff_A.*e, coeff_B.*e3, coeff_E.*e], ...
     [-N, -1, 0, 1, N], N*M, N*M)';
 
@@ -130,6 +138,7 @@ e3(N+1:N:end) = 0;
 e4(N-1:N:end) = 0;
 e5(N+2:N:end) = 0;
 
+% discretized version of backward operator -- the part from the interior:
 A_in = spdiags([coeff_e.*e, coeff_f.*e, coeff_d.*e4, coeff_c.*e2, coeff_j.*e, ...
     coeff_b.*e3, coeff_a.*e5, coeff_h.*e, coeff_i.*e], ...
     [-2*N, -N, -2, -1, 0, 1, 2, N, 2*N], N*M, N*M)';
@@ -138,7 +147,7 @@ A_in = spdiags([coeff_e.*e, coeff_f.*e, coeff_d.*e4, coeff_c.*e2, coeff_j.*e, ..
 A_b = -1/h^2*(A_in + A_out);
 
 
-%% discretize the operator
+%% diagonalize the operator
 
 % diagonalize
 [VV_b, lambda] = eigs(A_b,15,1e-4);
