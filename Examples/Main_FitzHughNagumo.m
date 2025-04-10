@@ -32,7 +32,9 @@
 %% generate time series
 
 %parameters
-D = 0.1215;
+%D = 0.1215; % large noise
+%D = 0.01; % medium noise
+D = 0.001; % small noise
 
 % drift and diffusion terms
 f = @(t,y)[y(1)-y(1).^3/3 - y(2) + 0.5; (y(1) + 0.7  - 0.8*y(2))/12.5];
