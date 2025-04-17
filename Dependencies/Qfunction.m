@@ -1,4 +1,5 @@
-function [X, Y, Q, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, g_func, m_func, n_func)
+
+function [X, Y, Q, P0, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, g_func, m_func, n_func)
 % Qfunction discretizes a 2D stochastic Koopman operator with variable coefficients.
 %
 %   [X, Y, Q, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, g_func, m_func, n_func)
@@ -143,25 +144,30 @@ A_in = spdiags([coeff_e.*e, coeff_f.*e, coeff_d.*e4, coeff_c.*e2, coeff_j.*e, ..
     coeff_b.*e3, coeff_a.*e5, coeff_h.*e, coeff_i.*e], ...
     [-2*N, -N, -2, -1, 0, 1, 2, N, 2*N], N*M, N*M)';
 
-% form the backwards operator
+% form the backward operator
 A_b = -1/h^2*(A_in + A_out);
 
+% form forward operator
+A_f = A_b';
 
-%% diagonalize the operator
+
+%% diagonalize the operators
 
 % diagonalize
 [VV_b, lambda] = eigs(A_b,15,1e-4);
+[VV_f,lambda_f] = eigs(A_f,15,1e-4);
 
 % normalize
 Q_b = VV_b./max(VV_b, [], 1);
+Q_f = VV_f./max(VV_f, [], 1);
 
-% sort the eigenvalues (only positive imaginary part)
+% sort the Q eigenvalues (only positive imaginary part)
 lambda = diag(lambda);
 imag_index = find(imag(lambda)>0);
 lambda_temp = lambda(imag_index);
 Q_b = Q_b(:,imag_index);
 
-% sort the eigenvalues (keep only the one with least negative real part)
+% sort the Q eigenvalues (keep only the one with least negative real part)
 real_index = find(max(real(lambda_temp)));
 lambda_chosen = lambda_temp(real_index);
 Q = Q_b(:,real_index);
@@ -169,5 +175,13 @@ Q = Q_b(:,real_index);
 % reshape Q
 Q = reshape(Q,[N,M]).';
 
+% sort the forward eigenvalues
+lambda_f = diag(lambda_f);
+[~, stat_index] = min(abs(lambda_f));
+P0 = Q_f(:,stat_index);
+
+% reshape P0
+P0 = reshape(P0,[N,M]).';
+P0 = P0/sum(sum(P0)*h*k);
 
 end
