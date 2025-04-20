@@ -1,4 +1,4 @@
-function [t, y] = TimeSeries(f, g, tmax, dt, y0)
+function [t, y] = TimeSeries(f, g, tmax, dt, y0, flag)
 % TimeSeries simulates an SDE using the Euler-Maruyama method.
 %
 %   [t, y] = TimeSeries(f, g, tmax, dt, y0) integrates the stochastic
@@ -11,11 +11,15 @@ function [t, y] = TimeSeries(f, g, tmax, dt, y0)
 %   condition y0.
 %
 %   Inputs:
-%       f    - function handle for the drift term, f(t,y)
-%       g    - function handle for the diffusion term, g(t,y)
-%       tmax - maximum simulation time
-%       dt   - time step size
-%       y0   - column vector of initial conditions
+%       f           - function handle for the drift term, f(t,y)
+%       g           - function handle for the diffusion term, g(t,y)
+%       tmax        - maximum simulation time
+%       dt          - time step size
+%       y0          - column vector of initial conditions
+%       flag        - indicates reflecting boundary conditions for the
+%                     heteroclinic oscillator; enter 'heteroclinic' for the
+%                     heteroclinic oscillator, and omit this input for any
+%                     other model.
 %
 %   Outputs:
 %       t    - time vector
@@ -38,11 +42,21 @@ function [t, y] = TimeSeries(f, g, tmax, dt, y0)
 %       [t, y] = TimeSeries(f, g, tmax, dt, y0);
 %
 %   Author: Max Kreider
-%   Date: April 7, 2025
+%   Date: April 19, 2025
 
 % check the number of input arguments.
 if nargin < 5
-    error('TimeSeries requires 5 input arguments: f, g, tmax, dt, y0');
+    error('TimeSeries.m requires at least 5 input arguments: f, g, tmax, dt, y0');
+elseif nargin == 5
+    flag = 0;  % no boundaries given
+elseif nargin == 6
+    if ischar(flag) && strcmp(flag, 'heteroclinic')
+        flag = 1;  % boundary values provided
+    else
+        error('TimeSeries.m only supports flag = heteroclinic');
+    end
+else
+    error('TimeSeries.m requires either 5 or 6 input arguments.');
 end
 
 % create time vector
@@ -65,6 +79,22 @@ for k = 1:numSteps-1
 
     % update the state vector
     y(:,k+1) = y(:,k) + dt*drift + sqrt(dt)*diffusion.*randn(numVars, 1);
+
+    % enforce reflecting boundary conditions on the square [-pi/2,pi/2]x[-pi/2,pi/2]
+    if flag == 1
+        if y(1,k+1) > pi/2
+            y(1,k+1) = pi/2 - (y(1,k+1)-pi/2);
+        end
+        if y(1,k+1) < (-pi/2)
+            y(1,k+1) = (-pi/2) - (y(1,k+1)-(-pi/2));
+        end
+        if y(2,k+1) > pi/2
+            y(2,k+1) = pi/2 - (y(2,k+1)-pi/2);
+        end
+        if y(2,k+1) < (-pi/2)
+            y(2,k+1) = (-pi/2) - (y(2,k+1)-(-pi/2));
+        end
+    end
 end
 
 end
