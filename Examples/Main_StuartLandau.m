@@ -7,26 +7,29 @@
 %   1. Simulating a stochastic differential equation (SDE) with the function TimeSeries.m
 %   2. Constructing the Q-function by discretizing the SKO on a specified domain with the function Qfunction.m
 %   3. Interpolating the SDE time series onto the Q-function coordinate system
-%   4. Visualizing the time series in both the original and Q-function coordinates, as well as the SKO spectrum
-%      and the Q-function
+%   4. Computing power spectra in original and Q-function coordinates with the function PowerSpectrum.m 
+%   5. Visualizing the results
 %
 % Dependencies:
 %   - TimeSeries.m (for SDE simulation)
 %   - Qfunction.m (for constructing the Q-function)
+%   - PowerSpectrum.m (for computing power spectra)
 %
 % Usage:
 %   Simply run the script to execute the full workflow. Adjust parameters for different models as needed.
 %
 % Figures:
-%   - Figure 1 displays time-series data (top: x(t), bottom y(t)) in the original coordinates
-%   - Figure 2 displays time-series data (top: Re(Q(t)), bottom Im(Q(t)) in the Q-function coordinates
-%   - Figure 3 displays the low-lying eigenvalue spectrum of the SKO.
+%   - Figure 1 displays time-series data in the original coordinates
+%   - Figure 2 displays time-series data in Q-function coordinates
+%   - Figure 3 displays the power spectra in original and Q-function coordinates
+%   - Figure 4 displays the low-lying eigenvalue spectrum of the SKO.
 %       The Q-function eigenvalue is highlighted in pink
-%   - Figures 4 and 5 display the real and imaginary parts of the Q-function
-%   - Figure 6 displays the asymptotic stochastic phase
+%   - Figures 5 and 6 display the real and imaginary parts of the Q-function
+%   - Figure 7 displays the asymptotic stochastic phase
+%   - Figure 8 displays the stationary distribution and 10 isochrons (white)
 %
 % Author: Max Kreider
-% Date: April 17, 2025
+% Date: April 19, 2025
 
 
 %% generate time series
@@ -35,7 +38,9 @@
 fprintf('\n\nGenerating time-series data in original coordinates... \n\n')
 
 % parameters
-D = 0.09473;
+D = 0.01;       %small noise
+%D = 0.09473;    %medium noise
+%D = 0.2;        %large noise
 
 % drift and diffusion terms
 f = @(t,y)[-4*y(1)*(y(1)^2+y(2)^2-1)+2*y(2); -4*y(2)*(y(1)^2+y(2)^2-1)-2*y(1)];
@@ -44,7 +49,7 @@ g = @(t,y)[sqrt(2*D); sqrt(2*D)];
 % simulation parameters
 tmax = 50;
 dt = 1/256;
-y0 = [1; 0];
+y0 = [1; 0.1];
 
 % run the simulation
 [t, u] = TimeSeries(f, g, tmax, dt, y0);
@@ -79,7 +84,7 @@ n_func = @(x,y) -4*y.*(x.^2+y.^2-1)-2*x + 0*x.*y;
 fprintf('Generating time-series in Q-function coordinates... \n\n')
 
 % time series in Q-function coordinates
-Q_series = interp2(X, Y, Q, u(1,:), u(2,:), 'linear');
+Q_series = interp2(X, Y, Q, u(1,:), u(2,:), 'spline');
 
 
 %% power spectra
@@ -88,7 +93,7 @@ Q_series = interp2(X, Y, Q, u(1,:), u(2,:), 'linear');
 fprintf('Generating power spectra... \n\n')
 
 % time
-Delta = 1/100;
+Delta = 1/50;
 Num = 2^17;
 pst = 0:Delta:(Num-1)*Delta;
 
@@ -97,10 +102,10 @@ step = (-Num/2:Num/2-1);
 freq = 1/(Num*Delta)*step*2*pi;
 
 % number of trials
-M = 100;
+Mtrial = 100;
 
 % compute power spectra
-[power_x,power_y,power_Q,power_exact_Q] = PowerSpectrum(f, g, pst(end), Delta, Num, freq, M, y0*rand, X, Y, Q, lambda_chosen);
+[power_x,power_y,power_Q,power_exact_Q] = PowerSpectrum(f, g, pst(end), Delta, Num, freq, Mtrial, y0*rand, X, Y, Q, lambda_chosen);
 
 
 %% visualize (if needed)
