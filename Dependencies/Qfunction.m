@@ -5,17 +5,18 @@ function [X, Y, Q, P0, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_fu
 %   [X, Y, Q, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, g_func, m_func, n_func)
 %   builds a rectangular grid on the domain [a,b] x [c,d] with N points in the x-
 %   direction and M points in the y-direction. The function then
-%   discretizes the backwards equation for the stochastic differential
-%   equation
+%   discretizes the backward equation for the stochastic differential
+%   equation. It also constructs the forward operator as the transpose of
+%   the backward operator.
 %
 %   dX = m(X,Y) dt + sqrt(2*f(X,Y)) dWx(t)
 %   dY = n(X,Y) dt + sqrt(2*g(X,Y)) dWy(t)
 %
 %   with independent Wiener process increments dWx(t) and dWy(t):
-% 
-%   L_dagger[Q_xx] = (f_func)Q_xx + (g_func)Q_yy + (m_func)Q_x + (n_func)Q_y 
-% 
-%   at the grid points to construct finite-difference discretizations 
+%
+%   L_dagger[Q_xx] = (f_func)Q_xx + (g_func)Q_yy + (m_func)Q_x + (n_func)Q_y
+%
+%   at the grid points to construct finite-difference discretizations
 %   (using a 9-point stencil for interior points) and adjusts for Neumann boundary conditions.
 %
 %   Inputs:
@@ -30,17 +31,18 @@ function [X, Y, Q, P0, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_fu
 %   Outputs:
 %       X, Y           : meshgrid arrays corresponding to the domain.
 %       Q              : the Q-function.
+%       P0             : the stationary distribution
 %       lambda         : the low-lying eigenvalues of the SKO
 %       lambda_chosen  : the eigenvalue corresponding to the Q-function
 %
 %   Example (FitzHugh-Nagumo system):
 %
 %       % define numerical domain:
-%       a = -5; 
-%       b = 5; 
-%       c = -5; 
+%       a = -5;
+%       b = 5;
+%       c = -5;
 %       d = 5;
-%       N = 500; 
+%       N = 500;
 %       M = 500;
 %
 %       % specify parameters for the backward equation
@@ -54,13 +56,14 @@ function [X, Y, Q, P0, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_fu
 %       [X, Y, Q, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, g_func, m_func, n_func);
 %
 %   Author: Max Kreider
-%   Date: April 7, 2025
+%   Date: April 19, 2025
 
 
 % check the number of input arguments.
 if nargin < 10
     error('Qfunction requires 10 input arguments: a, b, c, d, N, M, f_func, g_func, m_func, n_func');
 end
+
 
 %% create the backwards operator
 
