@@ -187,4 +187,8 @@ P0 = Q_f(:,stat_index);
 P0 = reshape(P0,[N,M]).';
 P0 = P0/sum(sum(P0)*h*k);
 
+% normalize Q
+I = trapz(y,trapz(x,abs(Q).^2.*P0,2));
+Q = Q/sqrt(I);
+
 end
