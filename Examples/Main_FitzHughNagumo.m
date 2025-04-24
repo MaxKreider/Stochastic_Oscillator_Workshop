@@ -38,9 +38,10 @@
 fprintf('\n\nGenerating time-series data in original coordinates... \n\n')
 
 % parameters
-%D = 0.1215;     %large noise
-D = 0.0005;     %small noise
-%D = 0.001;     %medium noise
+D = 0.1215;     %large noise
+D = 0.05;     %medium noise
+%D = 0.0005;     %small noise
+
 
 % drift and diffusion terms
 f = @(t,y)[y(1)-y(1).^3/3 - y(2) + 0.5; (y(1) + 0.7  - 0.8*y(2))/12.5];
@@ -61,10 +62,10 @@ y0 = [1; 0.1];
 fprintf('Generating the Q-function and the low-lying SKO eigenspectrum... \n\n')
 
 % define numerical domain
-a = -3; 
-b = 3; 
-c = -3; 
-d = 3;
+a = -5; 
+b = 5; 
+c = -5; 
+d = 5;
 N = 400; 
 M = 400;
 
@@ -263,7 +264,7 @@ reply = input('Display the stochastic asymptotic phase? (y = yes, any other key 
 if strcmpi(reply,'y')
     figure(7)
     contourf(X,Y,angle(Q)+pi,500,'LineColor','none')
-    colormap jet
+    colormap turbo
     colorbar
     xlabel('x')
     ylabel('y')
@@ -284,7 +285,7 @@ if strcmpi(reply,'y')
     contourf(ax1,X,Y,P0,500,'LineColor','none')
     contour(ax2,X,Y,angle(Q)+pi,10,'w','LineWidth',2.2)
 
-    colormap(ax1,'jet')
+    colormap(ax1,'hot')
     colormap(ax2,'gray')
 
     ax2.UserData = linkprop([ax1,ax2],{'Position','InnerPosition','DataAspectRatio','xtick','ytick','ydir','xdir','xlim','ylim'});
