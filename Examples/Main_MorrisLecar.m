@@ -40,9 +40,13 @@ fprintf('\n\nGenerating time-series data in original coordinates... \n\n')
 % parameter values
 global I Dn vK vL vCA gK gL gCA vA vB vC vD C phi Dv
 
+%Dn = 5*1e-2;   %small noise in n-gate component
+%Dv = .5;        %small noise in voltage component
+
+Dn = 8*1e-1;   %big noise in n-gate component
+Dv = 2;        %big noise in voltage component
+
 I = 180;
-Dn = 5*1e-2;   %noise in n-gate component
-Dv = .5;        %noise in voltage component
 vK = -84;
 vL = -60;
 vCA = 120;
@@ -277,7 +281,7 @@ reply = input('Display the stochastic asymptotic phase? (y = yes, any other key 
 if strcmpi(reply,'y')
     figure(7)
     contourf(X,Y,angle(Q)+pi,500,'LineColor','none')
-    colormap jet
+    colormap turbo
     colorbar
     xlabel('x')
     ylabel('y')
@@ -298,7 +302,7 @@ if strcmpi(reply,'y')
     contourf(ax1,X,Y,P0,500,'LineColor','none')
     contour(ax2,X,Y,angle(Q)+pi,10,'w','LineWidth',2.2)
 
-    colormap(ax1,'jet')
+    colormap(ax1,'hot')
     colormap(ax2,'gray')
 
     ax2.UserData = linkprop([ax1,ax2],{'Position','InnerPosition','DataAspectRatio','xtick','ytick','ydir','xdir','xlim','ylim'});
