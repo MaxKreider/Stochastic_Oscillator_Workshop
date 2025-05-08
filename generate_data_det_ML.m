@@ -11,30 +11,30 @@ opts = odeset('RelTol',1e-10,'AbsTol',1e-12);
 %parameters
 global I vK vL vCA gK gL gCA vA vB vC vD C phi
 
-I=100;
-vK=-84;
-vL=-60;
-vCA=120;
-gK=8;
-gL=2;
-gCA=4.4;
-vA=-1.2;
-vB=18;
-vC=2;
-vD=30;
-C=20;
-phi=0.04;
+I=100; % injected current
+vK=-84; % reversal potential for the potassium current (mV)
+vL=-60; % reversal potential for the leak current (mV)
+vCA=120; % reversal potential for the calcium current (mV)
+gK=8; % maximum conductance of the potassium current
+gL=2; % leak conductance
+gCA=4.4; % maximum conductance of the calcium current
+vA=-1.2; % half activation voltage for calcium gating (mv)
+vB=18; % reciprocal slope for calcium activation (mv)
+vC=2; % half activation voltage for potassium gating (mv)
+vD=30; % reciprocal slope for potassium activation (mv)
+C=20; % capacitance
+phi=0.04; % factor controlling relative timescale of voltage vs n-gate
 
 %time
-P=30;
-tmax=85.35*P;
-dt=.005;
+P=30; % period of limit cycle (ms)
+tmax=85.35*P; % simulation time (ms)
+dt=.005; % timestep (ms)
 
 
 %% system
 
 %initial conditions
-x0 = [33.3079; 0.3099569];
+x0 = [33.3079; 0.3099569]; % [initial voltage, initial n]
 
 %vector field
 F = @(t,u) [1/C*(I-gL*(u(1)-vL)-gK*u(2)*(u(1)-vK)-gCA*m(u(1))*(u(1)-vCA)); ...
@@ -44,8 +44,8 @@ F = @(t,u) [1/C*(I-gL*(u(1)-vL)-gK*u(2)*(u(1)-vK)-gCA*m(u(1))*(u(1)-vCA)); ...
 [t,U]=ode113(F,0:dt:tmax,x0,opts);
 
 %ease of notation
-v = U(:,1);
-n = U(:,2);
+v = U(:,1); % voltage (mv)
+n = U(:,2); % fraction of open potassium gates (dimensionless)
 
 %compute period T
 [~,loc]=findpeaks(v,'MinPeakHeight',0);
@@ -65,7 +65,7 @@ set(gca,'FontSize',15)
 
 %% isochrons
 
-%num
+%number of isochrons
 num=20;
 
 %store isochrons
