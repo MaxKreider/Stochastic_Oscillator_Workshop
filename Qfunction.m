@@ -1,5 +1,5 @@
-
 function [X, Y, Q, P0, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, g_func, m_func, n_func)
+%
 % Qfunction discretizes a 2D stochastic Koopman operator with variable coefficients.
 %
 %   [X, Y, Q, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, g_func, m_func, n_func)
@@ -56,7 +56,7 @@ function [X, Y, Q, P0, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_fu
 %       [X, Y, Q, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, g_func, m_func, n_func);
 %
 %   Author: Max Kreider
-%   Date: April 19, 2025
+%   Date: May 8, 2025
 
 
 % check the number of input arguments.
