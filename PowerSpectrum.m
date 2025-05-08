@@ -1,7 +1,8 @@
-function[power_x,power_y,power_Q,power_exact_Q] = PowerSpectrum(f, g, Tmax, dt, Num, freq, M, y0, X, Y, Q, lambda, flag)
+function[power_x,power_y,power_Q,power_exact_Q] = PowerSpectrum(f, g, Tmax, dt, Num, freq, M, y0, X, Y, Q, lambda, flag, a, b, c, d)
+%
 % PowerSpectrum computes the power spectrum of a stochastic oscillator.
 %
-%   [power_x, power_y, power_Q, power_exact_Q] = PowerSpectrum(f, g, Tmax, dt, Num, freq, M, y0, X, Y, Q, lambda, flag)
+%   [power_x, power_y, power_Q, power_exact_Q] = PowerSpectrum(f, g, Tmax, dt, Num, freq, M, y0, X, Y, Q, lambda, flag, a, b, c, d)
 %   simulates a stochastic differential equation multiple times and computes
 %   the power spectra of the time series in the original coordinates (x and y)
 %   and in transformed coordinates using the Q-function, Q(x,y). The exact theoretical power spectrum in 
@@ -19,8 +20,10 @@ function[power_x,power_y,power_Q,power_exact_Q] = PowerSpectrum(f, g, Tmax, dt, 
 %       X, Y        - meshgrid arrays corresponding to the domain of Q
 %       Q           - 2D array defining Q(X,Y), used to transform coordinates
 %       lambda      - complex eigenvalue associated with Q, used in the exact spectrum
-%       flag        - optional string flag, set to 'heteroclinic' to enable 
+%       flag        - optional string flag, set to 'BC' to enable 
 %                     reflecting boundary conditions (default is no boundaries)
+%       a,b,c,d     - specifies domain [a,b] x [c,d] on which to implement
+%                     reflecting boundary conditions
 %
 %   Outputs:
 %       power_x         - empirical power spectrum for x(t)
@@ -77,7 +80,7 @@ function[power_x,power_y,power_Q,power_exact_Q] = PowerSpectrum(f, g, Tmax, dt, 
 %       [power_x,power_y,power_Q,power_exact_Q] = PowerSpectrum(f, g, pst(end), Delta, Num, freq, M, y0*rand, X, Y, Q, lambda_chosen);
 %
 %   Author: Max Kreider
-%   Date: April 19, 2025
+%   Date: May 8, 2025
 
 
 % check the number of input arguments
@@ -85,14 +88,14 @@ if nargin < 12
     error('PowerSpectrum.m requires at least 12 input arguments: f, g, Tmax, dt, Num, freq, M, y0, X, Y, Q, lambda');
 elseif nargin == 12
     flag = 0;  % no boundaries given
-elseif nargin == 13
-    if ischar(flag) && strcmp(flag, 'heteroclinic')
+elseif nargin == 17
+    if ischar(flag) && strcmp(flag, 'BC')
         flag = 1;  % boundary values provided
     else
-        error('PowerSpectrum.m only supports flag = heteroclinic');
+        error('PowerSpectrum.m only supports flag = BC');
     end
 else
-    error('PowerSpectrum.m requires either 12 or 13 input arguments.');
+    error('PowerSpectrum.m requires either 12 or 17 input arguments.');
 end
 
 
@@ -106,7 +109,7 @@ power_Q = 0;
 % compute
 if flag == 1
     for i=1:M
-        [~, u] = TimeSeries(f, g, Tmax, dt, y0, 'heteroclinic');
+        [~, u] = TimeSeries(f, g, Tmax, dt, y0, 'BC', a, b, c, d);
         power_x = power_x + abs(fftshift(fft(u(1,:)))).^2;
         power_y = power_y + abs(fftshift(fft(u(2,:)))).^2;
         power_Q = power_Q + abs(fftshift(fft(interp2(X, Y, Q, u(1,:), u(2,:), 'spline')))).^2;
