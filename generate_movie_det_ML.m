@@ -11,19 +11,19 @@ opts = odeset('RelTol',1e-10,'AbsTol',1e-12);
 %parameters
 global I vK vL vCA gK gL gCA vA vB vC vD C phi
 
-I=100;
-vK=-84;
-vL=-60;
-vCA=120;
-gK=8;
-gL=2;
-gCA=4.4;
-vA=-1.2;
-vB=18;
-vC=2;
-vD=30;
-C=20;
-phi=0.04;
+I=100; % injected current
+vK=-84; % reversal potential for the potassium current (mV)
+vL=-60; % reversal potential for the leak current (mV)
+vCA=120; % reversal potential for the calcium current (mV)
+gK=8; % maximum conductance of the potassium current
+gL=2; % leak conductance
+gCA=4.4; % maximum conductance of the calcium current
+vA=-1.2; % half activation voltage for calcium gating (mv)
+vB=18; % reciprocal slope for calcium activation (mv)
+vC=2; % half activation voltage for potassium gating (mv)
+vD=30; % reciprocal slope for potassium activation (mv)
+C=20; % capacitance
+phi=0.04; % factor controlling relative timescale of voltage vs n-gate
 
 %vector field
 F = @(t,u) [1/C*(I-gL*(u(1)-vL)-gK*u(2)*(u(1)-vK)-gCA*m(u(1))*(u(1)-vCA)); ...
@@ -249,3 +249,5 @@ global vA vB
 xi=(V-vA)/vB;
 u=1/2*(1+tanh(xi));
 end
+
+%% runtime about 102 sec on a 2023 MacBook Pro (Apple M3 Max)

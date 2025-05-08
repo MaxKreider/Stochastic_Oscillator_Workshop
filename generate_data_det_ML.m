@@ -26,7 +26,7 @@ C=20; % capacitance
 phi=0.04; % factor controlling relative timescale of voltage vs n-gate
 
 %time
-P=30; % period of limit cycle (ms)
+P=30; % QQQ what is P? (ms)
 tmax=85.35*P; % simulation time (ms)
 dt=.005; % timestep (ms)
 
@@ -232,3 +232,6 @@ global vA vB
 xi=(V-vA)/vB;
 u=1/2*(1+tanh(xi));
 end
+
+
+%% runtime about 5 sec on a 2023 MacBook Pro (Apple M3 Max)
