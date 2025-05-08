@@ -1,4 +1,5 @@
-function [t, y] = TimeSeries(f, g, tmax, dt, y0, flag)
+function [t, y] = TimeSeries(f, g, tmax, dt, y0, flag, a, b, c, d)
+%
 % TimeSeries simulates an SDE using the Euler-Maruyama method.
 %
 %   [t, y] = TimeSeries(f, g, tmax, dt, y0) integrates the stochastic
@@ -16,10 +17,11 @@ function [t, y] = TimeSeries(f, g, tmax, dt, y0, flag)
 %       tmax        - maximum simulation time
 %       dt          - time step size
 %       y0          - column vector of initial conditions
-%       flag        - indicates reflecting boundary conditions for the
-%                     heteroclinic oscillator; enter 'heteroclinic' for the
-%                     heteroclinic oscillator, and omit this input for any
-%                     other model.
+%       flag        - indicates reflecting boundary conditions; enter 'BC'
+%                     to implement reflecting boundary conditions on the
+%                     domain; optional
+%       a,b,c,d     - specifies domain [a,b] x [c,d] on which to implement
+%                     reflecting boundary conditions
 %
 %   Outputs:
 %       t    - time vector
@@ -42,21 +44,21 @@ function [t, y] = TimeSeries(f, g, tmax, dt, y0, flag)
 %       [t, y] = TimeSeries(f, g, tmax, dt, y0);
 %
 %   Author: Max Kreider
-%   Date: April 19, 2025
+%   Date: May 8, 2025
 
 % check the number of input arguments.
 if nargin < 5
     error('TimeSeries.m requires at least 5 input arguments: f, g, tmax, dt, y0');
 elseif nargin == 5
     flag = 0;  % no boundaries given
-elseif nargin == 6
-    if ischar(flag) && strcmp(flag, 'heteroclinic')
+elseif nargin == 10
+    if ischar(flag) && strcmp(flag, 'BC')
         flag = 1;  % boundary values provided
     else
-        error('TimeSeries.m only supports flag = heteroclinic');
+        error('TimeSeries.m only supports flag = BC');
     end
 else
-    error('TimeSeries.m requires either 5 or 6 input arguments.');
+    error('TimeSeries.m requires either 5 or 10 input arguments.');
 end
 
 % create time vector
@@ -80,19 +82,19 @@ for k = 1:numSteps-1
     % update the state vector
     y(:,k+1) = y(:,k) + dt*drift + sqrt(dt)*diffusion.*randn(numVars, 1);
 
-    % enforce reflecting boundary conditions on the square [-pi/2,pi/2]x[-pi/2,pi/2]
+    % enforce reflecting boundary conditions on the square [a,b]x[c,d]
     if flag == 1
-        if y(1,k+1) > pi/2
-            y(1,k+1) = pi/2 - (y(1,k+1)-pi/2);
+        if y(1,k+1) > b
+            y(1,k+1) = b - (y(1,k+1)-b);
         end
-        if y(1,k+1) < (-pi/2)
-            y(1,k+1) = (-pi/2) - (y(1,k+1)-(-pi/2));
+        if y(1,k+1) < a
+            y(1,k+1) = a - (y(1,k+1)-a);
         end
-        if y(2,k+1) > pi/2
-            y(2,k+1) = pi/2 - (y(2,k+1)-pi/2);
+        if y(2,k+1) > d
+            y(2,k+1) = d - (y(2,k+1)-d);
         end
-        if y(2,k+1) < (-pi/2)
-            y(2,k+1) = (-pi/2) - (y(2,k+1)-(-pi/2));
+        if y(2,k+1) < c
+            y(2,k+1) = c - (y(2,k+1)-c);
         end
     end
 end
