@@ -26,9 +26,11 @@ General purpose functions:
 
 - TimeSeries.m
 - Qfunction.m
+- PowerSpectrum.m
 
-TimeSeries.m generates time-series data for a noisy stochastic oscillator using the Euler-Maruyama method.
+TimeSeries.m generates time-series data for a noisy stochastic oscillator using the Euler-Maruyama method
 Qfunction.m discretizes the SKO and generates the Q-function for a 2D stochastic oscillator
+PowerSpectrum.m generates power spectra for a noisy stochastic oscillator in original and Q-function coordinates
 
 Each script contains detailed documentation and example input for the interested user.
 
