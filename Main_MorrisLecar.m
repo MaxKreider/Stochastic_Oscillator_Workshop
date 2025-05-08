@@ -29,7 +29,7 @@
 %   - Figure 8 displays the stationary distribution and 10 isochrons (white)
 %
 % Author: Max Kreider
-% Date: April 19, 2025
+% Date: May 8, 2025
 
 
 %% generate time series
@@ -37,11 +37,17 @@
 %display progress update
 fprintf('\n\nGenerating time-series data in original coordinates... \n\n')
 
-% parameter values
+%define numerical domain
+a = -90;
+b = 90;
+c = 0;
+d = 1;
+
+%parameter values
 global I Dn vK vL vCA gK gL gCA vA vB vC vD C phi Dv
 
-%Dn = 5*1e-2;   %small noise in n-gate component
-%Dv = .5;        %small noise in voltage component
+Dn = 5*1e-2;   %small noise in n-gate component
+Dv = .5;        %small noise in voltage component
 
 Dn = 8*1e-1;   %big noise in n-gate component
 Dv = 2;        %big noise in voltage component
@@ -60,17 +66,17 @@ vD = 30;
 C = 20;
 phi = 0.04;
 
-% drift and diffusion terms
+%drift and diffusion terms
 f = @(t,y)[1/C*(I-gL*(y(1)-vL)-gK*y(2).*(y(1)-vK)-gCA.*m_inf(y(1),vA,vB).*(y(1)-vCA)); (alpha(y(1),phi,vC,vD).*(1-y(2))-beta(y(1),phi,vC,vD).*y(2))];
 g = @(t,y)[sqrt(2*Dv); sqrt(2*Dn^2/2*(alpha(y(1),phi,vC,vD).*(1-y(2))+beta(y(1),phi,vC,vD).*y(2)))];
 
-% simulation parameters
+%simulation parameters
 tmax = 1000;
 dt = 1/256;
 y0 = [1; 0.5];
 
-% run the simulation
-[t, u] = TimeSeries(f, g, tmax, dt, y0);
+%run the simulation
+[t, u] = TimeSeries(f, g, tmax, dt, y0, 'BC', a, b, c, d);
 
 
 %% construct the Q-function
@@ -78,21 +84,17 @@ y0 = [1; 0.5];
 %display progress update
 fprintf('Generating the Q-function and the low-lying SKO eigenspectrum... \n\n')
 
-% define numerical domain
-a = -90;
-b = 90;
-c = 0;
-d = 1;
+%define numerical domain
 N = 500;
 M = 500;
 
-% specify parameters for the backward equation
+%specify parameters for the backward equation
 f_func = @(x,y) Dv + 0*x.*y;
 g_func = @(x,y) Dn^2/2*(alpha(x,phi,vC,vD).*(1-y)+beta(x,phi,vC,vD).*y) + 0*x.*y;
 m_func = @(x,y) 1/C*(I-gL*(x-vL)-gK*y.*(x-vK)-gCA.*m_inf(x,vA,vB).*(x-vCA)) + 0*x.*y;
 n_func = @(x,y) (alpha(x,phi,vC,vD).*(1-y)-beta(x,phi,vC,vD).*y) + 0*x.*y;
 
-% generate the Q-function
+%generate the Q-function
 [X, Y, Q, P0, lambda, lambda_chosen] = Qfunction(a, b, c, d, N, M, f_func, g_func, m_func, n_func);
 
 
@@ -110,20 +112,20 @@ Q_series = interp2(X, Y, Q, u(1,:), u(2,:), 'spline');
 %display progress update
 fprintf('Generating power spectra... \n\n')
 
-% time
+%time
 Delta = 1/50;
 Num = 2^18;
 pst = 0:Delta:(Num-1)*Delta;
 
-% frequency vector
+%frequency vector
 step = (-Num/2:Num/2-1);
 freq = 1/(Num*Delta)*step*2*pi;
 
-% number of trials
+%number of trials
 M = 100;
 
-% compute power spectra
-[power_x,power_y,power_Q,power_exact_Q] = PowerSpectrum(f, g, pst(end), Delta, Num, freq, M, y0*rand, X, Y, Q, lambda_chosen);
+%compute power spectra
+[power_x,power_y,power_Q,power_exact_Q] = PowerSpectrum(f, g, pst(end), Delta, Num, freq, M, y0*rand, X, Y, Q, lambda_chosen, 'BC', a, b, c, d);
 
 
 %% visualize (if needed)
@@ -132,14 +134,14 @@ M = 100;
 fprintf('Generating plots, if requested by user input ... \n\n')
 fprintf('................................................ \n\n')
 
-% time series in original coordinates
+%time series in original coordinates
 reply = input('Display time series in original coordinates? (y = yes, any other key = no): ','s');
 if strcmpi(reply,'y')
 
     figure(1)
     set(gcf,'position',[66.60000000000001,163.4,899.2,420])
 
-    % Left column: two stacked subplots for x(t) and y(t)
+    %Left column: two stacked subplots for x(t) and y(t)
     subplot(2,2,1)
     plot(t, u(1,:), 'k', 'LineWidth', 2)
     ylabel('x(t)')
@@ -155,7 +157,7 @@ if strcmpi(reply,'y')
     xlim([0 tmax])
     set(gca,'FontSize',15)
 
-    % Right column: phase‐plane trajectory spanning both rows
+    %Right column: phase‐plane trajectory spanning both rows
     subplot(2,2,[2 4])
     hold on
     plot(u(1,:), u(2,:), 'k', 'LineWidth', 2) %trajectories
@@ -171,7 +173,7 @@ if strcmpi(reply,'y')
 
 end
 
-% time series in Q-function coordinates
+%time series in Q-function coordinates
 fprintf('\n\n')
 reply = input('Display time series in Q-function coordinates? (y = yes, any other key = no): ','s');
 if strcmpi(reply,'y')
@@ -179,7 +181,7 @@ if strcmpi(reply,'y')
     figure(2)
     set(gcf,'position',[66.60000000000001,163.4,899.2,420])
 
-    % Left column: two stacked subplots for x(t) and y(t)
+    %Left column: two stacked subplots for x(t) and y(t)
     subplot(2,2,1)
     plot(t, real(Q_series), 'k', 'LineWidth', 2)
     ylabel('Re(Q(t))')
@@ -194,7 +196,7 @@ if strcmpi(reply,'y')
     xlim([0 tmax])
     set(gca,'FontSize',15)
 
-    % Right column: phase‐plane trajectory spanning both rows
+    %Right column: phase‐plane trajectory spanning both rows
     subplot(2,2,[2 4])
     hold on
     plot(real(Q_series), imag(Q_series), 'k', 'LineWidth', 2) %trajectories
@@ -209,7 +211,7 @@ if strcmpi(reply,'y')
     box on
 end
 
-% plot power spectra
+%plot power spectra
 fprintf('\n\n')
 reply = input('Display power spectra? (y = yes, any other key = no): ','s');
 if strcmpi(reply,'y')
@@ -230,7 +232,7 @@ if strcmpi(reply,'y')
     legend('original coordinates','','Q-function coordinates','analytic expression')
 end
 
-% low-lying SKO eigenvalues (and highlight Q-function eigenvalue in pink)
+%low-lying SKO eigenvalues (and highlight Q-function eigenvalue in pink)
 fprintf('\n\n')
 reply = input('Display eigenvalues? (y = yes, any other key = no): ','s');
 if strcmpi(reply,'y')
@@ -247,7 +249,7 @@ if strcmpi(reply,'y')
     set(gca,'FontSize',15)
 end
 
-% Re(Q)
+%Re(Q)
 fprintf('\n\n')
 reply = input('Display the Q-function? (y = yes, any other key = no): ','s');
 if strcmpi(reply,'y')
@@ -262,7 +264,7 @@ if strcmpi(reply,'y')
     axis square
     set(gca,'FontSize',15)
 
-    % Im(Q)
+    %Im(Q)
     figure(6)
     contourf(X,Y,imag(Q),500,'LineColor','none')
     colormap jet
@@ -275,7 +277,7 @@ if strcmpi(reply,'y')
     set(gca,'FontSize',15)
 end
 
-% Arg(Q)
+%Arg(Q)
 fprintf('\n\n')
 reply = input('Display the stochastic asymptotic phase? (y = yes, any other key = no): ','s');
 if strcmpi(reply,'y')
@@ -291,7 +293,7 @@ if strcmpi(reply,'y')
     set(gca,'FontSize',15)
 end
 
-% Stationary distribution
+%Stationary distribution
 fprintf('\n\n')
 reply = input('Display the stationary distribution and 10 isochrons? (y = yes, any other key = no): ','s');
 if strcmpi(reply,'y')
