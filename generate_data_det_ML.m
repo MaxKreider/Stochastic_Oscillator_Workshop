@@ -1,3 +1,17 @@
+%
+% generate_data_det_ML.m generates data files containing the isochrons and
+% limit cycle of a determinisitc Morris-Lecar oscillator.
+%
+% Simply run the script to generate the data.
+%
+% NOTE: Run this script before running the following scripts:
+%
+% "generate_movie_det_ML.m" and "generate_movie_stoch_ML.m",
+%
+% which illustrate the asymptotic timing definition of isochrons (and the
+% lack of this property in the presence of noise).
+
+
 %% setup
 
 %keep it clean
@@ -26,7 +40,7 @@ C=20; % capacitance
 phi=0.04; % factor controlling relative timescale of voltage vs n-gate
 
 %time
-P=30; % QQQ what is P? (ms)
+P=30; % number of periods of oscillation (ms)
 tmax=85.35*P; % simulation time (ms)
 dt=.005; % timestep (ms)
 
