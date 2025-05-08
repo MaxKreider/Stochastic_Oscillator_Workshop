@@ -1,3 +1,12 @@
+%
+% generate_movie_stoch_ML.m generates an .mp4 movie demonstrating the
+% dynamics of a noisy Morris-Lecar neuron. Deterministic isochrons and a
+% periodic limit-cycle solution are not defined for this system.
+%
+% Simply run the script to generate the movie.
+%
+% NOTE: takes several minutes to complete.
+
 
 %% setup
 
