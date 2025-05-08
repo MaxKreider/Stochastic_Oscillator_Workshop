@@ -98,7 +98,7 @@ for i=1:num
         x0 = [isoXX(i,j);isoYX(i,j)];
 
         %solve
-        [~,U]=ode113(F,t,x0,opts);
+        [~,U]=ode113(F,t,x0,opts);    %%%%% perhaps using the euler-maruyama here with a small amount of noise would illustrate things for the stochastic case?
 
         %insert into SOL
         SOL(count:count+1,:) = U';
