@@ -1,3 +1,12 @@
+%
+% generate_movie_det_ML.m generates an .mp4 movie displaying the asymptotic
+% timing behavior of deterministic Morris-Lecar isochrons
+%
+% Simply run the script to generate the movie.
+%
+% NOTE: takes several minutes to complete.
+
+
 %% setup
 
 %mr clean
