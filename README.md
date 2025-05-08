@@ -34,6 +34,6 @@ PowerSpectrum.m generates power spectra for a noisy stochastic oscillator in ori
 
 Each script contains detailed documentation and example input for the interested user.
 
-These functions are used to generate time-series data in Q-function coordinates for a given 2D stochastic oscillator (see the 'Examples' folder).
+These functions are used to generate time-series data in Q-function coordinates for a given 2D stochastic oscillator.
 
 
