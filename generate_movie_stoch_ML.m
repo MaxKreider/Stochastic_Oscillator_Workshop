@@ -265,4 +265,4 @@ xi=(V-vA)/vB;
 u=1/2*(1+tanh(xi));
 end
 
-%% runtime about 102 sec on a 2023 MacBook Pro (Apple M3 Max)
+%% runtime about 170 sec on a 2023 MacBook Pro (Apple M3 Max)
