@@ -34,8 +34,6 @@ if nargin == 0
     D = 0;
 elseif nargin == 1 && D<0
     fprintf('\n\n Please enter D>=0 \n\n')
-elseif nargin > 1
-    fprintf('\n\n This function accepts only 1 input (the noise strength D>=0) \n\n')
 end
 
 
