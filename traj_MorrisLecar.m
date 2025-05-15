@@ -1,23 +1,27 @@
+function [t,u]=traj_MorrisLecar(Dv_input,Dn_input)
+
+%function [t,u]=traj_MorrisLecar(Dv,Dn)
 %
-% This script demonstrates the following steps for a (noisy) Morris-Lecar neuron:
+% This function numerically integrates a (noisy) Morris-Lecar neuron:
 %
 %   dx = [1/C*(I-gL*(x-vL) - gK*y*(x-vK) - gCA*m_inf(x)*(x-vCA))]dt + sqrt(2Dv)dW_1(t)
-%   dy = [alpha(x)*(1-y) - beta(x)*y]dt + [sqrt(2*Dn^2/2*(alpha(x)*(1-y)+beta(x)*y))]dW_2(t) 
-%
-%   1. Simulating a stochastic differential equation (SDE) with the function TimeSeries.m
+%   dy = [alpha(x)*(1-y) - beta(x)*y]dt + [sqrt(2*Dn^2/2*(alpha(x)*(1-y)+beta(x)*y))]dW_2(t)
 %
 % Dependencies:
 %   - TimeSeries.m (for SDE simulation)
 %
 % Usage:
-%   Simply run the script to execute the full workflow. Adjust parameters for different models as needed.
+%       % Choose a noise setting
+%       % Dn=0; Dv=0; No noise (default)
+%       % Dn = 5*1e-2; Dv = .5; (small noise in both n-gate and voltage components)
+%       % Dn = 8*1e-1; Dv = 2; (large noise in both n-gate and voltage components)
+%       [t,u]=traj_MorrisLecar(Dv,Dn)
 %
 % Figures:
 %   - Figure 1 displays time-series data in the original coordinates
 %
 % Author: Max Kreider
 % Date: May 8, 2025
-
 
 %% generate time series
 
@@ -33,14 +37,8 @@ d = 1;
 %parameter values
 global I Dn vK vL vCA gK gL gCA vA vB vC vD C phi Dv
 
-Dn = 5*1e-2;   %small noise in n-gate component
-Dv = .5;       %small noise in voltage component
-
-Dn = 8*1e-1;   %big noise in n-gate component
-Dv = 2;        %big noise in voltage component
-
-Dn = 0;        %no noise
-Dv = 0;
+if nargin > 0, Dv=Dv_input; else Dv=0; end % default to zero noise case
+if nargin > 1, Dn=Dn_input; else Dn=0; end % default to zero noise case
 
 I = 180;
 vK = -84;
@@ -84,49 +82,42 @@ y = linspace(c, d, M) + k/2;
 
 %% visualize (if needed)
 
-%display progress update
-fprintf('Generating plots, if requested by user input ... \n\n')
-fprintf('................................................ \n\n')
-
 %time series in original coordinates
-reply = input('Display time series in original coordinates? (y = yes, any other key = no): ','s');
-if strcmpi(reply,'y')
+figure(1)
+set(gcf,'position',[66.60000000000001,163.4,899.2,420])
 
-    figure(1)
-    set(gcf,'position',[66.60000000000001,163.4,899.2,420])
+%Left column: two stacked subplots for x(t) and y(t)
+subplot(2,2,1)
+plot(t, u(1,:), 'k', 'LineWidth', 2)
+ylabel('x(t)')
+title('x(t) vs t')
+xlim([0 tmax])
+set(gca,'FontSize',15)
 
-    %Left column: two stacked subplots for x(t) and y(t)
-    subplot(2,2,1)
-    plot(t, u(1,:), 'k', 'LineWidth', 2)
-    ylabel('x(t)')
-    title('x(t) vs t')
-    xlim([0 tmax])
-    set(gca,'FontSize',15)
+subplot(2,2,3)
+plot(t, u(2,:), 'k', 'LineWidth', 2)
+xlabel('time t')
+ylabel('y(t)')
+title('y(t) vs t')
+xlim([0 tmax])
+set(gca,'FontSize',15)
 
-    subplot(2,2,3)
-    plot(t, u(2,:), 'k', 'LineWidth', 2)
-    xlabel('time t')
-    ylabel('y(t)')
-    title('y(t) vs t')
-    xlim([0 tmax])
-    set(gca,'FontSize',15)
+%Right column: phase‐plane trajectory spanning both rows
+subplot(2,2,[2 4])
+hold on
+plot(u(1,:), u(2,:), 'k', 'LineWidth', 2) %trajectories
+contour(X, Y, m_func(X,Y), [0 0], 'g', 'LineWidth', 2);  % x-nullcline in green
+contour(X, Y, n_func(X,Y), [0 0], 'm', 'LineWidth', 2);  % y-nullcline in pink
+xlabel('x')
+ylabel('y')
+title('Phase‐Plane and Nullclines')
+%axis equal tight
+grid on
+set(gca,'FontSize',15)
+box on
 
-    %Right column: phase‐plane trajectory spanning both rows
-    subplot(2,2,[2 4])
-    hold on
-    plot(u(1,:), u(2,:), 'k', 'LineWidth', 2) %trajectories
-    contour(X, Y, m_func(X,Y), [0 0], 'g', 'LineWidth', 2);  % x-nullcline in green
-    contour(X, Y, n_func(X,Y), [0 0], 'm', 'LineWidth', 2);  % y-nullcline in pink
-    xlabel('x')
-    ylabel('y')
-    title('Phase‐Plane and Nullclines')
-    %axis equal tight
-    grid on
-    set(gca,'FontSize',15)
-    box on
 
 end
-
 
 %% functions
 
