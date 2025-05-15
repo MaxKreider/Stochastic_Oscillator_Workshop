@@ -1,11 +1,11 @@
-function[] = traj_FitzHughNagumo(D)
+function [t,u]=traj_FitzHughNagumo(D)
+
+%function [t,u]=traj_FitzHughNagumo(D)
 %
-% This script demonstrates the following steps for a FitzHugh-Nagumo oscillator:
+% This function numerically integrates a (noisy) FitzHugh-Nagumo oscillator:
 %
-%   x' = x - x^3/3 - y + 1/2
-%   y' = (x + 0.7 - 0.8*y)/12.5
-%
-%   1. Simulating a differential equation (ODE/SDE) with the function TimeSeries.m
+%   dx = [x - x^3/3 - y + 1/2]dt + sqrt(2D)dW_1(t)
+%   dy = [(x + 0.7 - 0.8*y)/12.5]dt + sqrt(2D)dW_2(t)
 %
 % Dependencies:
 %   - TimeSeries.m (for ODE/SDE simulation)
