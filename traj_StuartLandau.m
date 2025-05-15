@@ -1,14 +1,14 @@
-function [t,u]=traj_FitzHughNagumo(D)
-
-%function [t,u]=traj_FitzHughNagumo(D)
+function[t,u] = traj_StuartLandau(D)
+%
+% function [t,u]=traj_StuartLandau(D);
 %
 % This function numerically integrates a (noisy) FitzHugh-Nagumo oscillator:
 %
-%   dx = [x - x^3/3 - y + 1/2]dt + sqrt(2D)dW_1(t)
-%   dy = [(x + 0.7 - 0.8*y)/12.5]dt + sqrt(2D)dW_2(t)
+%   dx = [-4x(x^2 + y^2 - 1) + 2y]dt + sqrt(2D)dW_1(t)
+%   dy = [-4y(x^2 + y^2 - 1) - 2x]dt + sqrt(2D)dW_2(t)
 %
 % Dependencies:
-%   - TimeSeries.m (for ODE/SDE simulation)
+%   - TimeSeries.m (for SDE simulation)
 %
 % Usage:
 %   Input D = 0 for deterministic system (default value if no input given)
@@ -16,12 +16,15 @@ function [t,u]=traj_FitzHughNagumo(D)
 %   Input D = 10^-3 for medium noise
 %   Input D = 10^-2 for larger noise
 %
+% Usage:
+%   Simply run the script to execute the full workflow. Adjust parameters for different models as needed.
+%
 % Figures:
 %   - Figure 1 displays time-series data in the original coordinates
 %
 % Example:
 %   D = 0
-%   traj_FitzHughNagumo(D)
+%   traj_StuartLandau(D);
 %
 % Author: Max Kreider
 % Date: May 8, 2025
@@ -43,17 +46,17 @@ end
 fprintf('\n\nGenerating time-series data in original coordinates... \n\n')
 
 %define numerical domain
-a = -2.5;
-b = 2.5;
-c = -2.5;
-d = 2.5;
+a = -3;
+b = 3;
+c = -3;
+d = 3;
 
 %drift and diffusion terms
-f = @(t,y)[y(1)-y(1).^3/3 - y(2) + 0.5; (y(1) + 0.7  - 0.8*y(2))/12.5];
+f = @(t,y)[-4*y(1)*(y(1)^2+y(2)^2-1)+2*y(2); -4*y(2)*(y(1)^2+y(2)^2-1)-2*y(1)];
 g = @(t,y)[sqrt(2*D); sqrt(2*D)];
 
 %simulation parameters
-tmax = 500;
+tmax = 50;
 dt = 1/256;
 y0 = [1; 0.1];
 
@@ -61,8 +64,8 @@ y0 = [1; 0.1];
 [t, u] = TimeSeries(f, g, tmax, dt, y0, 'BC', a, b, c, d);
 
 %for computing nullclines
-m_func = @(x,y) x - x.^3/3 - y + 1/2 + 0*x.*y;
-n_func = @(x,y) 1/12.5*(x + 0.7 - 0.8*y) + 0*x.*y;
+m_func = @(x,y) -4*x.*(x.^2+y.^2-1)+2*y + 0*x.*y;
+n_func = @(x,y) -4*y.*(x.^2+y.^2-1)-2*x + 0*x.*y;
 
 %domain
 N = 400;
@@ -104,7 +107,7 @@ contour(X, Y, n_func(X,Y), [0 0], 'm', 'LineWidth', 2);  % y-nullcline in pink
 xlabel('x')
 ylabel('y')
 title('Phase‐Plane and Nullclines')
-%axis equal tight
+axis equal tight
 grid on
 set(gca,'FontSize',15)
 box on
