@@ -16,9 +16,6 @@ function[t,u] = traj_StuartLandau(D)
 %   Input D = 10^-3 for medium noise
 %   Input D = 10^-2 for larger noise
 %
-% Usage:
-%   Simply run the script to execute the full workflow. Adjust parameters for different models as needed.
-%
 % Figures:
 %   - Figure 1 displays time-series data in the original coordinates
 %
